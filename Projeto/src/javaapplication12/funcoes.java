@@ -48,7 +48,89 @@ public class Funcao {
         }
         return true;
     }
+    /**
+     * Aqui é vê a lista de variaveis
+     * @return
+     */
+    private static boolean Lista_declaracoes_variaveis() {
+        Lista_de_identificadores();
+        String[] str = codigo.get(contador++);
+        if(str[0].equals(":")) {
+            Tipo();
+            str = codigo.get(contador++);
+            if(str[0].equals(";")) {
+                Lista_declarações_variáveis_2();
+                return true;
+            }
+        }
+        return false;
+    }
 
+    /**
+     * Aqui vê a lista de variaveis. Criado pra evitar loop infinito.
+     * @return
+     */
+    private static boolean Lista_declarações_variáveis_2() {
+        Lista_de_identificadores();
+        String[] str = codigo.get(contador++);
+        if(str[0].equals(":")) {
+            Tipo();
+            str = codigo.get(contador++);
+            if(str[0].equals(";")) {
+                Lista_declarações_variáveis_2();
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Aqui ve a lista de indetificadores
+     * @return
+     */
+    private static boolean Lista_de_identificadores() {
+        String[] str = codigo.get(contador++);
+        if(str[1].equals("Identificador")) {
+            Lista_de_identificadores_2();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Aqui ve a lista de indetificadores. Criado para evitar loop infinito.
+     * @return
+     */
+    private static boolean Lista_de_identificadores_2() {
+        String[] str = codigo.get(contador++);
+        
+        if(str[0].equals(",")) {
+            str = codigo.get(contador++);
+            if(str[1].equals("Identificador")) {
+                Lista_de_identificadores_2();
+                return true;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Aqui vê o tipo
+     * @return
+     */
+    private static boolean Tipo() {
+        String[] str = codigo.get(contador++);
+
+        if(str[0].equals("integer") || str[0].equals("real") || str[0].equals("boolean")) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Aqui vê a declarações de funções
+     * @return
+     */
     private static boolean Declaracoes_de_subprogramas() {
         Declaracoes_de_subprogramas_2();
         return true;

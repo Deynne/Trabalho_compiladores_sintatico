@@ -1,10 +1,4 @@
-Iniciadas funções do semantivo
-
-Adicionados arquivos relacionados ao compilador
+﻿Iniciadas funções do semantivo
 
 Feitas até o momento:
-
-programa
-declarações_variaveis
-lista_declarações_variáveis
-declaracoes_de_subprogramas
+Toda a parte de declaração de variáveis
