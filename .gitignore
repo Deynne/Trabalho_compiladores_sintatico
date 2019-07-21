@@ -22,4 +22,11 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 /JavaApplication12/nbproject/private/
+<<<<<<< HEAD
 /JavaApplication12/build/
+=======
+
+commit.txt
+sincronia.bat
+>>>>>>> 10bcbf53127e7fa018250af6cc7217159a2f16a3
+/Projeto/nbproject/private/

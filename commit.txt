@@ -1,1 +1,1 @@
-Leitura e tratamento do arquivo de entrada
+﻿Incremento de novas funções

@@ -1,0 +1,14 @@
+begin
+boolean
+do
+else
+end
+if
+integer
+not
+procedure
+program
+real
+then
+var
+while
