@@ -1,4 +1,0 @@
-﻿Iniciadas funções do semantivo
-
-Feitas até o momento:
-Toda a parte de declaração de variáveis
