@@ -1,1 +1,10 @@
-atualizando gitignore
+Iniciadas funções do semantivo
+
+Adicionados arquivos relacionados ao compilador
+
+Feitas até o momento:
+
+programa
+declarações_variaveis
+lista_declarações_variáveis
+declaracoes_de_subprogramas
