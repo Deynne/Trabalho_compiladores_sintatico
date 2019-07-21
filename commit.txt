@@ -1,1 +1,1 @@
-Novos Arquivos
+atualizando gitignore
