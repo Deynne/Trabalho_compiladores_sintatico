@@ -19,9 +19,10 @@ public class Sintatico {
     /** Armazena a linha atualmente analisada do léxico */
     private static String[] str;
     /** Flag para tratar as diferentes respostas do comando_composto */
-    private static boolean eh_o_segundo_comando_composto = false,
+    private static boolean proxima_execucao_eh_teste = false,
                            /** Flag para tratar as diferentes respostas do comando */
-                           eh_o_segundo_comando = false;
+                           eh_o_segundo_comando = false,
+                           pode_ser_vazio = false;
 
     public static void LeArquivo(String str) throws FileNotFoundException {
         Scanner codigo = new Scanner(new File(str));
@@ -128,7 +129,7 @@ public class Sintatico {
             if (str[0].equals(";")) {
                 // Inicia a declaração, se houver, de novas variáveis, provavelmente de outro tipo
                 // O código neste ponto não verifica se serão tipos diferentes
-                Lista_declarações_variáveis_2();
+                Lista_declaracoes_variaveis_2();
                 return true;
             }
             else {
@@ -145,31 +146,40 @@ public class Sintatico {
      *
      * @return
      */
-    private static boolean Lista_declarações_variáveis_2() throws Erro_Sintatico_Exception {
+    private static boolean Lista_declaracoes_variaveis_2() throws Erro_Sintatico_Exception {
+        pode_ser_vazio = true;
         // Pega a lista de identificadores
-        Lista_de_identificadores();
-        // pega elemento
-        str = Codigo.get(contador++);
-        // Verifica se após os identificadores todos tem um :
-        if (str[0].equals(":")) {
-            // Verifica o tipo
-            Tipo();
-            // Pega elemnto
+        if(Lista_de_identificadores()) {
+            pode_ser_vazio = false;
+            // pega elemento
             str = Codigo.get(contador++);
-            // Verifica se a linha foi encerrada com ;
-            if (str[0].equals(";")) {
-                // Inicia a declaração, se houver, de novas variáveis, provavelmente de outro tipo
-                // O código neste ponto não verifica se serão tipos diferentes
-                Lista_declarações_variáveis_2();
-                return true;
+            // Verifica se após os identificadores todos tem um :
+            if (str[0].equals(":")) {
+                // Verifica o tipo
+                Tipo();
+                // Pega elemnto
+                str = Codigo.get(contador++);
+                // Verifica se a linha foi encerrada com ;
+                if (str[0].equals(";")) {
+
+                    // Inicia a declaração, se houver, de novas variáveis, provavelmente de outro tipo
+                    // O código neste ponto não verifica se serão tipos diferentes
+                    Lista_declaracoes_variaveis_2();
+                    return true;
+                }
+                else {
+                    throw new Erro_Sintatico_Exception("Esperado ; mas recebido ".concat(str[0]),str[2]);
+                }
             }
             else {
-                throw new Erro_Sintatico_Exception("Esperado ; mas recebido ".concat(str[0]),str[2]);
+                throw new Erro_Sintatico_Exception("Esperado : mas recebido ".concat(str[0]),str[2]);
             }
         }
-        // Pode não haver mais variáveis. Nesse caso reverte a leitura
-        contador--;
-        return false; // retorna false para indicar que esta retornando vazio
+        else {
+            pode_ser_vazio = false;
+            // Pode não haver mais variáveis. Nesse caso reverte a leitura
+            return false; // retorna false para indicar que esta retornando vazio
+        }
     }
 
     /**
@@ -185,6 +195,10 @@ public class Sintatico {
             // Verifica se haverão mais identificadores e coloca eles
             Lista_de_identificadores_2();
             return true;
+        }
+        else if(pode_ser_vazio){
+            contador--;
+            return false;//
         }
         else {
             throw new Erro_Sintatico_Exception("Esperado um identificador mas recebido ".concat(str[0].concat(" um ".concat(str[1]))),str[2]);
@@ -395,7 +409,9 @@ public class Sintatico {
         str = Codigo.get(contador++); // pega elemento
         // Verifica se começou o begin
         if (str[0].equals("begin")) {
-            eh_o_segundo_comando_composto = true;
+            // Avisa que na próxima chamada va
+            proxima_execucao_eh_teste = true;
+            // Se entrou aqui, independente da execução, o proximo comando é o primeiro do novo bloco
             eh_o_segundo_comando = false;
             // Vê se há comandos opicionais
             Comandos_opcionais();
@@ -414,8 +430,8 @@ public class Sintatico {
         verificação. Neste caso não faz sentido dar um erro. Deve-se apenas ignorar falar que não é comando composto
         e voltar.
         */
-        else if(eh_o_segundo_comando_composto) {
-            eh_o_segundo_comando = false;
+        else if(proxima_execucao_eh_teste) {
+            //eh_o_segundo_comando = false;
             // Não é comando composto
             contador--; // Reverte a leitura
             return false; // Nesta situação ele só indica que não é comando composto
@@ -444,9 +460,11 @@ public class Sintatico {
         // Verifica a lista de comandos
         // Se nenhum dos comandos da lista de comandos for aceito, isso quer dizer que na verdade
         // comando composto é vazio
+        pode_ser_vazio = true;
         if(Comando()) {
+            pode_ser_vazio = false;
             // No caso de entrar, há um comando, então finaliza o comando e verifica se há outro
-            Lista_de_Comandos2();
+            Lista_de_Comandos_2();
             return true;
         }
         return false; // false aqui indica que comando_opcional é vazio, pois o elemento não corresponde a nenhum comando
@@ -457,7 +475,7 @@ public class Sintatico {
      * @return
      * @throws Erro_Sintatico_Exception
      */
-    private static boolean Lista_de_Comandos2() throws Erro_Sintatico_Exception {
+    private static boolean Lista_de_Comandos_2() throws Erro_Sintatico_Exception {
         // Pega o elemento
         str = Codigo.get(contador++);
         // Verifica se após o comando é um ;
@@ -467,305 +485,325 @@ public class Sintatico {
             Comando();
             // Verifica se haverão outros comandos
             // Dependendo da quantidade de comandos pode ocorrer stackoverflow
-            Lista_de_Comandos2();
+            Lista_de_Comandos_2();
+            return true;
         }
         contador--; // Caso não tenha ; ele esta retornando vazio então desfaz a leitura
         return false; // Retorna false para indicar vazio
     }
 
+    /**
+     * Executa algum comando
+     */
     private static boolean Comando() throws Erro_Sintatico_Exception {
+        // Pega elemnto
         str = Codigo.get(contador++);
+        // Se for um if ele é aceito
         if(str[0].equals("if")) {
+            // Flag ligada para avisar que comando opicional não tem como ser vazio
             eh_o_segundo_comando = true;
-            return true;
+            Expressao(); // Verifica a expressão
+            // Pega elemento
+            str = Codigo.get(contador++);
+            // verifica se é then
+            if(str[0].equals("then")) {
+                Comando(); // Pega o próximo comando
+                Parte_else(); // Verifica se tem else
+                return true;
+            }
+            // Caso não tenha then é um erro
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado then mas recebido ".concat(str[0]),str[2]);
+            }
         }
+        // Se não for um if pode ser um while
         else if(str[0].equals("while")) {
+            // Flag ligada para avisar que comando opicional não tem como ser vazio
+            eh_o_segundo_comando = true;
+            Expressao();// Verifica a expressão
+            // Pega elemento
+            str = Codigo.get(contador++);
+            // verifica se é do
+            if(str[0].equals("do")) {
+                Comando(); // PEga o próximo comando
+                return true;
+            }
+            // Caso não seja do é um erro
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado do mas recebido ".concat(str[0]),str[2]);
+            }
+        }
+        // Já que nenhuma das constantes é correta, a leitura precisa ser desfeita
+        contador--;
+        // Tenta ver se é uma variável
+        if (Variavel()) {
+            // Flag ligada para avisar que comando opicional não tem como ser vazio
+            eh_o_segundo_comando = true;
+            // pega elemento
+            str = Codigo.get(contador++);
+            // tem de ser uma atribuição
+            if(str[0].equals(":=")) {
+                Expressao(); // Pega expressão
+                return true;
+            }
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado := mas recebido ".concat(str[0]),str[2]);
+            }
+            
+            
+        }
+        // Verifica se é a ativação de um procedimento
+        else if (Ativacao_de_procedimento()) {
+            // Flag ligada para avisar que comando opicional não tem como ser vazio
             eh_o_segundo_comando = true;
             return true;
         }
-        contador--;
-        if (Variavel()) {
-            eh_o_segundo_comando = true;
-            
-        }
-        else if (Ativacao_de_procedimento()) {
-            eh_o_segundo_comando = true;
-            
-        }
-        else if(comandoComposto()) {
-            
-
+        // Verifica se é um novo comando composto
+        else if(Comando_composto()) {
+            return true;
         }
         /* Caso não exista nenhum comando até o momento, isso quer dizer que o begin 
         */
-        else if (eh_o_segundo_comando) {
-            
+        else if (eh_o_segundo_comando && !pode_ser_vazio) {
+            throw new Erro_Sintatico_Exception("Houve um erro na leitura do comando",Codigo.get(contador)[2]);
         }
         else {
             return false; // Isso indicará para o comando opcional que ele é vazio
         }
     }
 
-    private static boolean parteElse() throws Erro_Sintatico_Exception {
+    /**
+     * verifica se há else
+     * @return
+     * @throws Erro_Sintatico_Exception
+     */
+    private static boolean Parte_else() throws Erro_Sintatico_Exception {
+        // pega elemento
         str = Codigo.get(contador++);
         if (str[0].equals("else")) {
-            if (Comando()) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return true;
+            Comando(); // Executa o novo comando
         }
+        contador--; // Se não for um else pode ser vazio, reverte a leitura
+        return false; // retorna false para representar vazio
     }
 
-    private static boolean Variavel() throws Erro_Sintatico_Exception {
-        str = Codigo.get(contador++);
-
+    /**
+     * verifica se é variavel
+     */
+    private static boolean Variavel() {
+        str = Codigo.get(contador++); // pega elemento
+        // verifica se é identificador
         if (str[1].equals("Identificador")) {
             return true;
-        } else {
-            return false;
+        }
+        else {
+            contador--;
+            return false; // Isso indicará para o comando opcional que ele é vazio
+            // PS: Variavel não retorna vazio, mas comando trata em caso de um erro
+            // Não se pode dar throw aqui por que isso causará problemas em comando opcional
         }
     }
 
+    /**
+     * Verifica se esta ocorrendo uma ativação de procedimento
+     */
     private static boolean Ativacao_de_procedimento() throws Erro_Sintatico_Exception {
-
+        // pega elemento
         str = Codigo.get(contador++);
-
+        // Verifica se é identificador
         if (str[1].equals("Identificador")) {
-            if (str[0].equals("(")) {
-                if (listaEspressoes()) {
-                    if (str[0].equals(")")) {
-                        return true;
-
-                        // Procedimento de tipo id ( lista de expressão)
-                    } else {
-                        return false;
-                    }
-
-                } else {
-                    return false;
-
-                }
-
-            } else {
-                return true;
-                // Procedimento de tipo id
-            }
-        } else {
-            System.out.println("Ativação Invalida na linha" + str[1]);
-            return false;
-
-            // Ativaçã de procedimento inválido.
-        }
-
-    }
-
-    private static boolean comandoComposto() throws Erro_Sintatico_Exception {
-
-        str = Codigo.get(contador++);
-
-        if (str[0].equals("Begin")) {
-            if (Comandos_opcionais()) {
-                if (str[0].equals("End")) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            //System.err.println("Comando composto invalido (Falta 'begin') na linha " + getCurrentTokenPosition());
-            return false;
-        }
-
-    }
-
-    private static boolean listaEspressoes() throws Erro_Sintatico_Exception {
-
-        str = Codigo.get(contador++);
-
-        if (Expressao()) {
-            if (listaExpressoes2()) {
-                return true;
-            } else {
-                return false;
-            }
-
-        } else {
-            return false;
-        }
-
-    }
-
-    private static boolean listaExpressoes2() throws Erro_Sintatico_Exception {
-
-        str = Codigo.get(contador++);
-
-        if (str[0].equals(",")) {
-            if (Expressao()) {
-                return listaExpressoes2();
-            } else {
-                return false;
-            }
-        } else {
+            Alternativas_id();
             return true;
+        } else {
+            contador--;
+            return false; // Isso indicará para o comando opcional que ele é vazio
+            // PS: Variavel não retorna vazio, mas comando trata em caso de um erro
+            // Não se pode dar throw aqui por que isso causará problemas em comando opcional
+        }
+
+    }
+
+    /**
+     * verifica se id assume alguma alternativa
+     */
+    private static boolean Alternativas_id() throws Erro_Sintatico_Exception {
+        // pega elemento
+        str = Codigo.get(contador++);
+        if(str[0].equals("(")) {
+            Lista_de_expressões();
+            str = Codigo.get(contador++);
+            if(str[0].equals(")")) {
+                return true;
+            }
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado ) mas recebido ".concat(str[0]),str[2]);
+            }
+        }
+        contador--;
+        return false;
+    }
+
+    /**
+     * Lista de expressões
+     */
+    private static boolean Lista_de_expressões() throws Erro_Sintatico_Exception {
+        Expressao();
+        Lista_de_expressões_2();
+        return true;
+    }
+
+    private static boolean Lista_de_expressões_2() throws Erro_Sintatico_Exception {
+
+        str = Codigo.get(contador++);
+        if (str[0].equals(",")) {
+            Expressao();
+            Lista_de_expressões_2();
+            return true;
+        } else {
+            contador--;
+            return false;
         }
     }
 
     private static boolean Expressao() throws Erro_Sintatico_Exception {
-        if (Expressao_Simples()) {
-            if (OperadorRelacional()) {
-                if (Expressao_Simples()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        } else {
-            return false;
-        }
+        Expressao_Simples();
+        Alternativas_expressao();
+        return true;
+    }
+
+    private static boolean Alternativas_expressao() throws Erro_Sintatico_Exception {
+        Operador_relacional();
+        Expressao_Simples();
         return true;
     }
 
     private static boolean Expressao_Simples() throws Erro_Sintatico_Exception {
+        
+        
         if (Termo()) {
             Expressao_Simples_2();
-
-        } else if (Sinal()) {
-            if (Termo()) {
-                Expressao_Simples_2();
-            }
-        } else {
-            return false;
+            return true;
         }
-        //  termo expressaoSimples OU sinal termo expressaoSimples
+        pode_ser_vazio = true;
+        Sinal();
+        pode_ser_vazio = false;
+        Termo();
+        Expressao_Simples_2();
         return true;
+
     }
 
     private static boolean Expressao_Simples_2() throws Erro_Sintatico_Exception {
-        if (OperadorAditivo()) {
-            if (Termo()) {
-                if (Expressao_Simples_2());
-                return true;
-            } else {
-                return false;
-            }
+        if (Operador_aditivo()) {
+            Termo();
+            Expressao_Simples_2();
+            return true;
         }
         //(operadorAditivo termo/)*
-        return true;
+        return false;
     }
 
     private static boolean Termo() throws Erro_Sintatico_Exception {
-        if (Fator()) {
-            if (Termo_2()) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        if(Fator()) {
+            Termo_2();
+            return true;
         }
+        return false;
     }
 
     private static boolean Termo_2() throws Erro_Sintatico_Exception {
-        if (OperadorMultiplicativo()) {
-            if (Fator()) {
-                Termo_2();// operadorMultiplicativo fator Termo_2
-                return true;
-            } else {
-                return false;
-            }
+        if(Operador_multiplicativo()) {
+            Fator();
+            Termo_2();
+            return true;
         }
-        return true;
 
+        return false; // retorna false para indicar que é vazio
     }
 
     private static boolean Fator() throws Erro_Sintatico_Exception {
         str = Codigo.get(contador++);
-        if (str[1].equals("identificador")) {
-            if (str[0].equals("(")) {
-                if (listaEspressoes()) {
-                    if (str[0].equals(")")) {//  id(listaDeExpressoes)
-                        return true;
-                    } else {
-                        return false;
-                    }
-
-                } else {
-                    return false;
-                }
-            } //  id
+        if (str[1].equals("Identificador")) {
+            Alternativas_id();
             return true;
-        } else if (str[1].equals("Numero Inteiro")) {
+        }
+        else if (str[1].equals("Numero Inteiro")) {
             return true;
-        } else if (str[1].equals("Numero Real")) {
+        }
+        else if (str[1].equals("Numero Real")) {
             return true;
-        } else if (str[0].equals("(true")) {
+        }
+        else if (str[0].equals("true")) {
             return true;
-        } else if (str[0].equals("false")) {
+        }
+        else if (str[0].equals("false")) {
             return true;
-        } else if (str[0].equals("(")) {
-            if (Expressao()) {
-                if (str[0].equals(")")) {    //(expressao)
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else if (str[0].equals("not")) {
-            if (Fator()) {   //not fator
+        }            
+        else if (str[0].equals("not")) {
+            Fator();
+            return true;
+        }
+        else if (str[0].equals("(")) {
+            Expressao();
+            str = Codigo.get(contador++);
+            if(str[0].equals(")")) {
                 return true;
-            } else {
-                return false;
             }
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado ) mas recebido ".concat(str[0]),str[2]);
+            }
+        
         } else {
-            return false;
+            contador--;
+            return false;//throw  new Erro_Sintatico_Exception("Esperado integer, real, boolean, (, not, ou Identificador mas recebido ".concat(str[0].concat(" um ".concat(str[1]))),str[2]);
         }
 
     }
 
-    private static boolean OperadorRelacional() throws Erro_Sintatico_Exception {
+    private static boolean Operador_relacional() throws Erro_Sintatico_Exception {
         str = Codigo.get(contador++);
-
         if (str[0].equals("=") || str[0].equals("<") || str[0].equals(">") || str[0].equals("<=") || str[0].equals(">=") || str[0].equals("<>")) {
             return true;
         }
-
-        return false;
+        else {
+            contador--;
+            return false; //throw  new Erro_Sintatico_Exception("Esperado =, <, >, <=, >= ou <> mas recebido ".concat(str[0]),str[2]);
+        }
     }
 
     private static boolean Sinal() throws Erro_Sintatico_Exception {
         str = Codigo.get(contador++);
-
         if (str[0].equals("+") || str[0].equals("-")) {
             return true;
         }
-
-        return false;
+        else if(pode_ser_vazio) {
+            contador--;
+            return false;
+        }
+        else {
+            throw  new Erro_Sintatico_Exception("Esperado + ou - mas recebido ".concat(str[0]),str[2]);
+        }
     }
 
-    private static boolean OperadorAditivo() throws Erro_Sintatico_Exception {
+    private static boolean Operador_aditivo() throws Erro_Sintatico_Exception {
         str = Codigo.get(contador++);
-
         if (str[0].equals("+") || str[0].equals("-") || str[0].equals("or")) {
             return true;
         }
-
-        return false;
+        else {
+            contador--;
+            return false;
+        }
     }
 
-    private static boolean OperadorMultiplicativo() throws Erro_Sintatico_Exception {
+    private static boolean Operador_multiplicativo() throws Erro_Sintatico_Exception {
         str = Codigo.get(contador++);
-
         if (str[0].equals("*") || str[0].equals("/") || str[0].equals("and")) {
             return true;
         }
-
-        return false;
+        else {
+            contador--;
+            return false;
+        }
     }
 }

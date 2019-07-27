@@ -27,12 +27,6 @@ public class Main {
             //System.out.println(ex.getMessage());
         }
         
-        if(b) {
-                System.out.println("Ok");
-            }
-            else {
-                System.out.println("não ok");
-            }
-        System.out.println("Cheogu aqui?");
+        System.out.println("Programa Correto.");
     }
 }
