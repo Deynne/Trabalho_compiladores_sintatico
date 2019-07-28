@@ -533,6 +533,29 @@ public class Sintatico {
                 throw  new Erro_Sintatico_Exception("Esperado do mas recebido ".concat(str[0]),str[2]);
             }
         }
+        else if (str[0].equals("case")) {
+            str = Codigo.get(contador++);
+            if(str[1].equals("Identificador")) {
+                str = Codigo.get(contador++);
+                if(str[0].equals("of")) {
+                   Lista_de_casos();
+                   str = Codigo.get(contador++);
+                    if(str[0].equals("end")) {
+                        return true;
+                    }
+                    else {
+                        throw  new Erro_Sintatico_Exception("Esperado end mas recebido ".concat(str[0]),str[2]);
+                    }
+                   
+                }
+                else {
+                    throw  new Erro_Sintatico_Exception("Esperado of mas recebido ".concat(str[0]),str[2]);
+                }
+            }
+            else {
+                throw new Erro_Sintatico_Exception("Esperado um identificador mas recebido ".concat(str[0].concat(" um ".concat(str[1]))),str[2]);
+            }
+        }
         // Já que nenhuma das constantes é correta, a leitura precisa ser desfeita
         contador--;
         // Tenta ver se é uma variável
@@ -558,6 +581,10 @@ public class Sintatico {
             eh_o_segundo_comando = true;
             return true;
         }
+        else if (Lista_de_casos()) {
+            eh_o_segundo_comando = true;
+            return true;
+        }
         // Verifica se é um novo comando composto
         else if(Comando_composto()) {
             return true;
@@ -572,6 +599,63 @@ public class Sintatico {
         }
     }
 
+    private static boolean Lista_de_casos() throws Erro_Sintatico_Exception {
+        str = Codigo.get(contador++);
+        if(str[1].equals("Numero Inteiro")) {
+            str = Codigo.get(contador++);
+            if(str[0].equals(":")) {
+                Comando();
+                Lista_de_casos_2();
+                return true;
+            }
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado : mas recebido ".concat(str[0]),str[2]);
+            }
+        }
+        else {//if(pode_ser_vazio) {
+            contador--;
+            return false;
+        }
+//        else {
+//            throw new Erro_Sintatico_Exception("Esperado um identificador mas recebido ".concat(str[0].concat(" um ".concat(str[1]))),str[2]);
+//        }
+        
+    }
+    
+    private static boolean Lista_de_casos_2() throws Erro_Sintatico_Exception {
+        str = Codigo.get(contador++);
+        if(str[0].equals(";")) {
+            Alternativa_lista_de_casos_2();
+            return true;
+        }
+        contador--;
+        return false;
+        
+    }
+    
+    private static boolean Alternativa_lista_de_casos_2() throws Erro_Sintatico_Exception {
+        str = Codigo.get(contador++);
+        if(str[1].equals("Numero Inteiro")) {
+            str = Codigo.get(contador++);
+            if(str[0].equals(":")) {
+                Comando();
+                Lista_de_casos_2();
+                return true;
+            }
+            else {
+                throw  new Erro_Sintatico_Exception("Esperado : mas recebido ".concat(str[0]),str[2]);
+            }
+        }
+        contador--;
+        if (Parte_else()){
+            return true;
+        }
+        else {
+            throw  new Erro_Sintatico_Exception("Ultima instrução não pode conter ;",str[2]);
+        }
+    
+    }
+    
     /**
      * verifica se há else
      * @return
@@ -581,7 +665,8 @@ public class Sintatico {
         // pega elemento
         str = Codigo.get(contador++);
         if (str[0].equals("else")) {
-            Comando(); // Executa o novo comando
+            Comando();
+            return true;// Executa o novo comando
         }
         contador--; // Se não for um else pode ser vazio, reverte a leitura
         return false; // retorna false para representar vazio
