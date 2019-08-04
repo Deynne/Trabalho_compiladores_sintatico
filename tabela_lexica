@@ -10,26 +10,122 @@ valor2#Identificador#4
 :#Delimitador#4
 real#Palavra-Chave#4
 ;#Delimitador#4
-begin#Palavra-Chave#5
-case#Identificador#6
-valor1#Identificador#6
-of#Identificador#6
-1#Numero Inteiro#7
+procedure#Palavra-Chave#6
+banana#Identificador#6
+(#Delimitador#6
+a#Identificador#6
+,#Delimitador#6
+b#Identificador#6
+,#Delimitador#6
+c#Identificador#6
+:#Delimitador#6
+integer#Palavra-Chave#6
+;#Delimitador#6
+d#Identificador#6
+,#Delimitador#6
+e#Identificador#6
+,#Delimitador#6
+f#Identificador#6
+:#Delimitador#6
+boolean#Palavra-Chave#6
+)#Delimitador#6
+;#Delimitador#6
+var#Palavra-Chave#7
+h#Identificador#7
+,#Delimitador#7
+i#Identificador#7
+,#Delimitador#7
+j#Identificador#7
 :#Delimitador#7
-valor2#Identificador#7
-:=#Comando de Atribuicao#7
-1#Numero Inteiro#7
+real#Palavra-Chave#7
 ;#Delimitador#7
-2#Numero Inteiro#8
+eliot#Identificador#8
 :#Delimitador#8
-valor2#Identificador#8
-:=#Comando de Atribuicao#8
-3#Numero Inteiro#8
+boolean#Palavra-Chave#8
 ;#Delimitador#8
-else#Palavra-Chave#9
-valor2#Identificador#9
-:=#Comando de Atribuicao#9
-0#Numero Inteiro#9
-end#Palavra-Chave#10
-end#Palavra-Chave#11
-.#Delimitador#11
+begin#Palavra-Chave#9
+h#Identificador#10
+:=#Comando de Atribuicao#10
+i#Identificador#10
++#Operador Aditivo#10
+j#Identificador#10
+;#Delimitador#10
+i#Identificador#11
+:=#Comando de Atribuicao#11
+10#Numero Inteiro#11
++#Operador Aditivo#11
+11.2#Numero real#11
+;#Delimitador#11
+eliot#Identificador#12
+:=#Comando de Atribuicao#12
+(#Delimitador#12
+true#Booleano#12
+and#Operador Multiplicativo#12
+(#Delimitador#12
+false#Booleano#12
+or#Operador Aditivo#12
+true#Booleano#12
+)#Delimitador#12
+)#Delimitador#12
+and#Operador Multiplicativo#12
+true#Booleano#12
+and#Operador Multiplicativo#12
+(#Delimitador#12
+15#Numero Inteiro#12
+<#Operador Relacional#12
+3#Numero Inteiro#12
+)#Delimitador#12
+;#Delimitador#12
+if#Palavra-Chave#13
+(#Delimitador#13
+(#Delimitador#13
+true#Booleano#13
+and#Operador Multiplicativo#13
+(#Delimitador#13
+false#Booleano#13
+or#Operador Aditivo#13
+true#Booleano#13
+)#Delimitador#13
+)#Delimitador#13
+and#Operador Multiplicativo#13
+true#Booleano#13
+and#Operador Multiplicativo#13
+(#Delimitador#13
+15#Numero Inteiro#13
+<#Operador Relacional#13
+3#Numero Inteiro#13
+)#Delimitador#13
+)#Delimitador#13
++#Operador Aditivo#13
+5#Numero Inteiro#13
+then#Palavra-Chave#13
+h#Identificador#14
+:=#Comando de Atribuicao#14
+14#Numero Inteiro#14
++#Operador Aditivo#14
+2.0#Numero real#14
+end#Palavra-Chave#15
+;#Delimitador#15
+begin#Palavra-Chave#17
+case#Identificador#18
+valor1#Identificador#18
+of#Identificador#18
+1#Numero Inteiro#19
+:#Delimitador#19
+valor2#Identificador#19
+:=#Comando de Atribuicao#19
+1#Numero Inteiro#19
+;#Delimitador#19
+2#Numero Inteiro#20
+:#Delimitador#20
+valor2#Identificador#20
+:=#Comando de Atribuicao#20
+3#Numero Inteiro#20
+;#Delimitador#20
+else#Palavra-Chave#21
+valor2#Identificador#21
+:=#Comando de Atribuicao#21
+0#Numero Inteiro#21
+end#Palavra-Chave#22
+end#Palavra-Chave#23
+.#Delimitador#23

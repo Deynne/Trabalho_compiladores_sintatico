@@ -1,0 +1,23 @@
+program teste; {programa exemplo}
+var
+valor1: integer;
+valor2: real;
+
+procedure banana(a,b,c: integer;d,e,f:boolean);
+    var h,i,j:real;
+    eliot : boolean;
+    begin
+        h := i + j;
+        i := 10 + 11.2;
+        eliot := (true and (false or true)) and true and ( 15 < 3);
+        if ((true and (false or true)) and true and ( 15 < 3)) then
+        h := 14+2.0
+    end;
+
+begin
+case valor1 of
+    1: valor2 := 1;
+    2: valor2 := 3;
+    else valor2 := 0
+end
+end.
